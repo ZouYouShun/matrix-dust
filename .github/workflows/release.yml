@@ -56,7 +56,7 @@ jobs:
 
             ### Homebrew (Recommended)
             ```bash
-            brew install --cask ZouYouShun/tap/window-tuner
+            brew install --cask ZouYouShun/tap/matrix-dust
             ```
 
             ### Manual
@@ -110,8 +110,8 @@ jobs:
           SILICON_SHA=${{ steps.release.outputs.silicon_sha }}
           INTEL_SHA=${{ steps.release.outputs.intel_sha }}
 
-          cat > Casks/window-tuner.rb << EOF
-          cask "window-tuner" do
+          cat > Casks/matrix-dust.rb << EOF
+          cask "matrix-dust" do
             version "$VERSION"
 
             if Hardware::CPU.arm?
@@ -129,9 +129,9 @@ jobs:
             app "Matrix Dust.app"
 
             zap trash: [
-              "~/Library/Application Support/com.matrix-dust.window-tuner",
-              "~/Library/Preferences/com.matrix-dust.window-tuner.plist",
-              "~/Library/Logs/com.matrix-dust.window-tuner",
+              "~/Library/Application Support/com.matrix-dust.matrix-dust",
+              "~/Library/Preferences/com.matrix-dust.matrix-dust.plist",
+              "~/Library/Logs/com.matrix-dust.matrix-dust",
             ]
           end
           EOF
@@ -140,6 +140,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Casks/window-tuner.rb
-          git commit -m "chore(cask): update window-tuner to ${{ steps.release.outputs.tag }}"
+          git add Casks/matrix-dust.rb
+          git commit -m "chore(cask): update matrix-dust to ${{ steps.release.outputs.tag }}"
           git push

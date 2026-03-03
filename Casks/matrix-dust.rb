@@ -1,4 +1,4 @@
-cask "window-tuner" do
+cask "matrix-dust" do
   version "0.1.0"
 
   if Hardware::CPU.arm?
@@ -16,8 +16,8 @@ cask "window-tuner" do
   app "Matrix Dust.app"
 
   zap trash: [
-    "~/Library/Application Support/com.matrix-dust.window-tuner",
-    "~/Library/Preferences/com.matrix-dust.window-tuner.plist",
-    "~/Library/Logs/com.matrix-dust.window-tuner",
+    "~/Library/Application Support/com.matrix-dust.matrix-dust",
+    "~/Library/Preferences/com.matrix-dust.matrix-dust.plist",
+    "~/Library/Logs/com.matrix-dust.matrix-dust",
   ]
 end

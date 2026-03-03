@@ -1,5 +1,5 @@
 [package]
-name = "window-tuner"
+name = "matrix-dust"
 version = "0.1.0"
 description = "Window layout adjustment via global shortcuts"
 authors = ["you"]

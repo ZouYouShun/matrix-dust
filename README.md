@@ -34,7 +34,7 @@ matrix-dust/
 │       ├── shortcuts.rs        # Global shortcut registration (16 bindings)
 │       └── tray.rs             # System tray icon + context menu
 ├── Casks/
-│   └── window-tuner.rb         # Homebrew Cask definition for distribution
+│   └── matrix-dust.rb         # Homebrew Cask definition for distribution
 ├── index.html                  # Shell HTML for the shortcut panel webview
 ├── package.json                # JS toolchain (Bun + Vite)
 └── src-tauri/
@@ -177,12 +177,12 @@ A pure TypeScript module (no framework) that renders 16 layout cards into the we
 
 The webview window is **decoration-less** and **transparent** (`decorations: false`, `transparent: true` in `tauri.conf.json`), giving it a floating panel appearance.
 
-### 6. Distribution (`Casks/window-tuner.rb`)
+### 6. Distribution (`Casks/matrix-dust.rb`)
 
 The app ships as a `.dmg` via GitHub Releases and is installable as a Homebrew Cask:
 
 ```bash
-brew install --cask ZouYouShun/tap/window-tuner
+brew install --cask ZouYouShun/tap/matrix-dust
 ```
 
 ---
@@ -209,6 +209,44 @@ All shortcuts use **Ctrl + Option** (`⌃ ⌥`) as the modifier.
 | Right Two-Thirds  | `⌃ ⌥ T`  | Right ⅔ of screen                  |
 | Maximize          | `⌃ ⌥ ↵`  | Fill the visible screen area       |
 | Center            | `⌃ ⌥ C`  | Center window (keeps current size) |
+
+---
+
+## Installation
+
+### Option 1 — Homebrew (recommended)
+
+```bash
+# Add the tap (one-time setup)
+brew tap ZouYouShun/tap https://github.com/ZouYouShun/matrix-dust
+
+# Install Matrix Dust
+brew install --cask ZouYouShun/tap/matrix-dust
+```
+
+To update later:
+
+```bash
+brew upgrade --cask matrix-dust
+```
+
+To uninstall and remove all app data:
+
+```bash
+brew uninstall --cask matrix-dust --zap
+```
+
+### Option 2 — Manual
+
+1. Download the latest `.dmg` from the [Releases](https://github.com/ZouYouShun/matrix-dust/releases/latest) page.
+   - Apple Silicon → `Matrix.Dust_<version>_aarch64.dmg`
+   - Intel → `Matrix.Dust_<version>_x64.dmg`
+2. Open the `.dmg` and drag **Matrix Dust.app** into `/Applications`.
+3. Launch the app — it will appear only in the menu bar, with no Dock icon.
+
+> **First launch:** macOS will ask you to grant **Accessibility** permission.  
+> Open **System Settings → Privacy & Security → Accessibility** and enable Matrix Dust.  
+> Without this permission the app cannot read or move windows.
 
 ---
 
