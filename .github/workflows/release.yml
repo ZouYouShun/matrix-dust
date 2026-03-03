@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-macos:
+    name: Build macOS (${{ matrix.target }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            label: apple-silicon
+          - target: x86_64-apple-darwin
+            label: intel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install frontend deps
+        run: bun install
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Matrix Dust ${{ github.ref_name }}"
+          releaseBody: |
+            ## What's Changed
+
+            See [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+
+            ## Installation
+
+            ### Homebrew (Recommended)
+            ```bash
+            brew install --cask ZouYouShun/tap/window-tuner
+            ```
+
+            ### Manual
+            Download the `.dmg` file below for your architecture.
+          releaseDraft: false
+          prerelease: false
+          args: --target ${{ matrix.target }}
+
+  update-cask:
+    name: Update Homebrew Cask
+    needs: build-macos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get release info
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ github.ref_name }}
+          VERSION=${TAG#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+          # Wait for assets to be available
+          sleep 10
+
+          # Get silicon DMG sha256
+          SILICON_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/Matrix.Dust_${VERSION}_aarch64.dmg"
+          INTEL_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/Matrix.Dust_${VERSION}_x64.dmg"
+
+          echo "silicon_url=$SILICON_URL" >> $GITHUB_OUTPUT
+          echo "intel_url=$INTEL_URL" >> $GITHUB_OUTPUT
+
+          SILICON_SHA=$(curl -sL "$SILICON_URL" | shasum -a 256 | awk '{print $1}')
+          INTEL_SHA=$(curl -sL "$INTEL_URL" | shasum -a 256 | awk '{print $1}')
+
+          echo "silicon_sha=$SILICON_SHA" >> $GITHUB_OUTPUT
+          echo "intel_sha=$INTEL_SHA" >> $GITHUB_OUTPUT
+
+      - name: Update Cask file
+        run: |
+          VERSION=${{ steps.release.outputs.version }}
+          SILICON_SHA=${{ steps.release.outputs.silicon_sha }}
+          INTEL_SHA=${{ steps.release.outputs.intel_sha }}
+
+          cat > Casks/window-tuner.rb << EOF
+          cask "window-tuner" do
+            version "$VERSION"
+
+            if Hardware::CPU.arm?
+              sha256 "$SILICON_SHA"
+              url "https://github.com/${{ github.repository }}/releases/download/v#{version}/Matrix.Dust_#{version}_aarch64.dmg"
+            else
+              sha256 "$INTEL_SHA"
+              url "https://github.com/${{ github.repository }}/releases/download/v#{version}/Matrix.Dust_#{version}_x64.dmg"
+            end
+
+            name "Window Tuner"
+            desc "Lightweight macOS window layout manager with global keyboard shortcuts"
+            homepage "https://github.com/${{ github.repository }}"
+
+            app "Matrix Dust.app"
+
+            zap trash: [
+              "~/Library/Application Support/com.matrix-dust.window-tuner",
+              "~/Library/Preferences/com.matrix-dust.window-tuner.plist",
+              "~/Library/Logs/com.matrix-dust.window-tuner",
+            ]
+          end
+          EOF
+
+      - name: Commit and push updated Cask
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/window-tuner.rb
+          git commit -m "chore(cask): update window-tuner to ${{ steps.release.outputs.tag }}"
+          git push
