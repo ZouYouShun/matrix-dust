@@ -250,6 +250,24 @@ brew uninstall --cask matrix-dust --zap
 
 ---
 
+## Troubleshooting
+
+### "Matrix Dust is damaged and can't be opened"
+
+macOS Gatekeeper quarantines apps downloaded outside the App Store. Because Matrix Dust is not notarized, you may see this alert on first launch.
+
+**Fix — remove the quarantine attribute:**
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Matrix\ Dust.app
+```
+
+Then launch the app again normally.
+
+> **Why this happens:** macOS sets a `com.apple.quarantine` extended attribute on every file downloaded from the internet. For unsigned or un-notarized binaries, Gatekeeper refuses to open them even after you click _Open Anyway_. The command above strips that attribute from the app bundle, telling Gatekeeper to treat it as locally trusted.
+
+---
+
 ## Requirements
 
 - **macOS only** — Intel (`x86_64`) and Apple Silicon (`aarch64`)
