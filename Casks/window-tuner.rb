@@ -9,7 +9,7 @@ cask "window-tuner" do
     url "https://github.com/ZouYouShun/matrix-dust/releases/download/v#{version}/Matrix.Dust_#{version}_x64.dmg"
   end
 
-  name "Window Tuner"
+  name "Matrix Dust"
   desc "Lightweight macOS window layout manager with global keyboard shortcuts"
   homepage "https://github.com/ZouYouShun/matrix-dust"
 

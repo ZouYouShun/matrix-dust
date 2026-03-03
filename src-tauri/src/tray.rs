@@ -112,7 +112,7 @@ pub fn create_tray<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Resul
     // Standard items
     let shortcuts_i =
         MenuItem::with_id(app, "shortcuts", "Shortcut Reference…", true, None::<&str>)?;
-    let quit_i = MenuItem::with_id(app, "quit", "Quit Window Tuner", true, None::<&str>)?;
+    let quit_i = MenuItem::with_id(app, "quit", "Quit Matrix Dust", true, None::<&str>)?;
 
     let sep1 = PredefinedMenuItem::separator(app)?;
     let sep2 = PredefinedMenuItem::separator(app)?;

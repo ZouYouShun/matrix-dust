@@ -117,7 +117,7 @@ jobs:
               url "https://github.com/${{ github.repository }}/releases/download/v#{version}/Matrix.Dust_#{version}_x64.dmg"
             end
 
-            name "Window Tuner"
+            name "Matrix Dust"
             desc "Lightweight macOS window layout manager with global keyboard shortcuts"
             homepage "https://github.com/${{ github.repository }}"
 

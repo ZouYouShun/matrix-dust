@@ -114,7 +114,7 @@ app.innerHTML = `
   <div class="header">
     <div class="header-icon">⊞</div>
     <div class="header-text">
-      <h1>Window Tuner</h1>
+      <h1>Matrix Dust</h1>
       <p>Global keyboard shortcuts</p>
     </div>
     <div class="status-dot">Active</div>
