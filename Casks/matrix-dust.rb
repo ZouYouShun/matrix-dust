@@ -1,11 +1,11 @@
 cask "matrix-dust" do
-  version "0.1.0"
+  version "0.1.2"
 
   if Hardware::CPU.arm?
-    sha256 "c06b31069b6d5e81c935c02d4cd9e73da59ed72c2b54a3d43efa63dfae07f05d"
+    sha256 "5364080a92f977d526dd152628c6727dadb01af4fde2cf742b3d570a1857e50c"
     url "https://github.com/ZouYouShun/matrix-dust/releases/download/v#{version}/Matrix.Dust_#{version}_aarch64.dmg"
   else
-    sha256 "bb6a2ff5e8fafcf79d19fe0cab45f8085043c2f080d4b12e935fb156279d1fe9"
+    sha256 "9b950d38d8200884ce1836b19bd1103a998f1c4e80b874f52972776cf67dac9d"
     url "https://github.com/ZouYouShun/matrix-dust/releases/download/v#{version}/Matrix.Dust_#{version}_x64.dmg"
   end
 
