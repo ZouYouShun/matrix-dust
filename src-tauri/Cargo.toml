@@ -1,6 +1,6 @@
 [package]
 name = "matrix-dust"
-version = "0.1.3"
+version = "0.1.4"
 description = "Window layout adjustment via global shortcuts"
 authors = ["you"]
 edition = "2021"
