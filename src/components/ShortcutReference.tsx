@@ -99,10 +99,16 @@ const shortcutGroups = [
 ];
 
 interface Props {
+  isGranted: boolean;
+  onOpenPreferences: () => void;
   onClose: () => void;
 }
 
-export default function ShortcutReference({ onClose }: Props) {
+export default function ShortcutReference({
+  isGranted,
+  onOpenPreferences,
+  onClose,
+}: Props) {
   return (
     <div className="ref-view">
       <div className="header">
@@ -112,6 +118,13 @@ export default function ShortcutReference({ onClose }: Props) {
           <p>Global keyboard shortcuts</p>
         </div>
         <div className="status-dot">Active</div>
+        <button
+          className="settings-toggle-btn"
+          title="Preferences"
+          onClick={onOpenPreferences}
+        >
+          ⚙
+        </button>
         <button
           id="btn-close"
           className="close-btn"
@@ -170,7 +183,7 @@ export default function ShortcutReference({ onClose }: Props) {
 
       <div className="footer">
         <span className="footer-note">
-          macOS only · Accessibility granted ✓
+          macOS only · Accessibility {isGranted ? "granted ✓" : "not granted ⚠"}
         </span>
         <span className="footer-badge">Matrix-Dust</span>
       </div>

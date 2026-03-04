@@ -20,6 +20,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             accessibility::check_accessibility,
             accessibility::request_accessibility,
+            accessibility::open_accessibility_settings,
         ])
         .setup(|app| {
             // Hide from Dock and App Switcher — tray-only app

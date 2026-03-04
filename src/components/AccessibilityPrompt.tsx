@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 interface Props {
@@ -10,6 +10,11 @@ type Step = "idle" | "waiting" | "denied";
 
 export default function AccessibilityPrompt({ onGranted, onClose }: Props) {
   const [step, setStep] = useState<Step>("idle");
+
+  // Trigger system prompt automatically on mount for extra proactiveness
+  useEffect(() => {
+    handleEnable();
+  }, []);
 
   const handleEnable = async () => {
     setStep("waiting");

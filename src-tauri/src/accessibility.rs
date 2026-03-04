@@ -78,3 +78,14 @@ pub fn request_accessibility() -> bool {
         true
     }
 }
+/// Opens the system Accessibility settings (Privacy & Security -> Accessibility).
+#[tauri::command]
+pub fn open_accessibility_settings() {
+    #[cfg(target_os = "macos")]
+    {
+        use std::process::Command;
+        let _ = Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+            .spawn();
+    }
+}
