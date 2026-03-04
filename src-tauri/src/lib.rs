@@ -1,3 +1,4 @@
+mod accessibility;
 mod shortcuts;
 mod tray;
 mod window_manager;
@@ -16,6 +17,10 @@ pub fn run() {
                 }
             }
         })
+        .invoke_handler(tauri::generate_handler![
+            accessibility::check_accessibility,
+            accessibility::request_accessibility,
+        ])
         .setup(|app| {
             // Hide from Dock and App Switcher — tray-only app
             #[cfg(target_os = "macos")]
