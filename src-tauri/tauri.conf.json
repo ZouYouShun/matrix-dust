@@ -17,7 +17,7 @@
         "title": "Matrix Dust",
         "width": 560,
         "height": 460,
-        "resizable": false,
+        "resizable": true,
         "visible": false,
         "decorations": false,
         "transparent": true,

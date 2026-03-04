@@ -11,11 +11,6 @@ type Step = "idle" | "waiting" | "denied";
 export default function AccessibilityPrompt({ onGranted, onClose }: Props) {
   const [step, setStep] = useState<Step>("idle");
 
-  // Trigger system prompt automatically on mount for extra proactiveness
-  useEffect(() => {
-    handleEnable();
-  }, []);
-
   const handleEnable = async () => {
     setStep("waiting");
     try {

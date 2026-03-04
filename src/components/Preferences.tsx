@@ -1,4 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
+import { useEffect, useState } from "react";
 
 interface Props {
   isGranted: boolean;
@@ -6,9 +8,15 @@ interface Props {
 }
 
 export default function Preferences({ isGranted, onBack }: Props) {
+  const [version, setVersion] = useState<string>("...");
+
   const handleOpenSettings = async () => {
     await invoke("open_accessibility_settings");
   };
+
+  useEffect(() => {
+    getVersion().then(setVersion).catch(console.error);
+  }, []);
 
   return (
     <div className="ref-view preferences-view">
@@ -53,7 +61,7 @@ export default function Preferences({ isGranted, onBack }: Props) {
           <div className="settings-row">
             <div className="settings-info">
               <div className="settings-name">Matrix Dust</div>
-              <div className="settings-desc">v1.0.0</div>
+              <div className="settings-desc">v{version}</div>
             </div>
           </div>
           <p className="about-text">

@@ -4,38 +4,65 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import AccessibilityPrompt from "./components/AccessibilityPrompt";
 import ShortcutReference from "./components/ShortcutReference";
 import Preferences from "./components/Preferences";
+import WelcomeTutorial from "./components/WelcomeTutorial";
 
-type View = "checking" | "prompt" | "granted" | "preferences";
+type View = "checking" | "prompt" | "granted" | "preferences" | "tutorial";
 
 export default function App() {
+  const [windowLabel, setWindowLabel] = useState<string | null>(null);
   const [view, setView] = useState<View>("checking");
   const [isGranted, setIsGranted] = useState(false);
 
-  // Poll accessibility status every 2 seconds
+  useEffect(() => {
+    setWindowLabel(getCurrentWindow().label);
+  }, []);
+
   const checkAccess = useCallback(async () => {
+    if (!windowLabel) return;
+
     try {
       const granted: boolean = await invoke("check_accessibility");
       setIsGranted(granted);
 
-      // Only auto-switch to "granted" if we are currently checking or on the prompt screen.
-      // If we are on the preferences screen, we stay there.
-      if (granted && (view === "checking" || view === "prompt")) {
-        setView("granted");
-      } else if (!granted && view !== "preferences") {
-        setView("prompt");
+      // We only want to auto-navigate if the user is NOT in preferences.
+      if (view === "preferences") return;
+
+      if (windowLabel === "main") {
+        if (granted) {
+          const hasTutorial = localStorage.getItem("hasCompletedTutorial");
+          if (hasTutorial !== "true") {
+            // Success! Open new tutorial window and hide this one
+            await invoke("open_tutorial_window");
+            await getCurrentWindow().hide();
+            // Important: update view to granted so if main window is
+            // reopened later, it shows the shortcuts, not the prompt.
+            setView("granted");
+          } else {
+            // Tutorial already done, show main shortcuts if not already there
+            if (view !== "granted") setView("granted");
+          }
+        } else {
+          // No access, show prompt
+          if (view !== "prompt") setView("prompt");
+        }
+      } else if (windowLabel === "tutorial") {
+        // In the tutorial window, always show tutorial view
+        if (view !== "tutorial") setView("tutorial");
       }
-    } catch {
-      if (view !== "preferences") setView("prompt");
+    } catch (err) {
+      console.error("Access check failed:", err);
     }
-  }, [view]);
+  }, [view, windowLabel]);
 
   useEffect(() => {
-    checkAccess();
-  }, [checkAccess]);
+    if (windowLabel) {
+      checkAccess();
+    }
+  }, [checkAccess, windowLabel]);
 
-  // Continuous polling
+  // Polling only if granted status might change (e.g. in prompt or preferences)
   useEffect(() => {
-    const id = setInterval(checkAccess, 2_000);
+    const id = setInterval(checkAccess, 2000);
     return () => clearInterval(id);
   }, [checkAccess]);
 
@@ -47,19 +74,37 @@ export default function App() {
     }
   }, []);
 
+  const handleTutorialComplete = useCallback(async () => {
+    localStorage.setItem("hasCompletedTutorial", "true");
+    try {
+      await getCurrentWindow().close();
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // Show nothing until we know which window we are in to avoid flashing
+  if (!windowLabel) return null;
+
   if (view === "checking") {
     return (
       <div className="checking-view">
         <div className="spinner" />
-        <p>Checking permissions…</p>
+        <p>Initializing…</p>
       </div>
     );
+  }
+
+  if (view === "tutorial") {
+    return <WelcomeTutorial onComplete={handleTutorialComplete} />;
   }
 
   if (view === "prompt") {
     return (
       <AccessibilityPrompt
-        onGranted={() => setView("granted")}
+        onGranted={() => {
+          // checkAccess will handle the transition
+        }}
         onClose={handleClose}
       />
     );
@@ -71,6 +116,7 @@ export default function App() {
     );
   }
 
+  // Final fallback: show ShortcutReference (the "granted" view)
   return (
     <ShortcutReference
       isGranted={isGranted}

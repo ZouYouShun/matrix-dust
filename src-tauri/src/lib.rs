@@ -5,6 +5,27 @@ mod window_manager;
 
 use tauri::Manager;
 
+#[tauri::command]
+async fn open_tutorial_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    // Only open if not already open
+    if app_handle.get_webview_window("tutorial").is_none() {
+        let _ = tauri::WebviewWindowBuilder::new(
+            &app_handle,
+            "tutorial",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .title("Welcome to Matrix Dust")
+        .inner_size(560.0, 460.0)
+        .resizable(true)
+        .decorations(false)
+        .transparent(true)
+        .center()
+        .build()
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -21,6 +42,7 @@ pub fn run() {
             accessibility::check_accessibility,
             accessibility::request_accessibility,
             accessibility::open_accessibility_settings,
+            open_tutorial_window
         ])
         .setup(|app| {
             // Hide from Dock and App Switcher — tray-only app
@@ -30,9 +52,15 @@ pub fn run() {
             shortcuts::setup_shortcuts(app)?;
             tray::create_tray(app.handle())?;
 
-            // Hide main window on start — this app lives in the tray
+            // Hide main window on start — this app lives in the tray.
+            // But IF permission is missing, show it so the user can see the guide.
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.hide();
+                if !accessibility::macos::is_accessibility_granted() {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                } else {
+                    let _ = window.hide();
+                }
             }
 
             Ok(())
